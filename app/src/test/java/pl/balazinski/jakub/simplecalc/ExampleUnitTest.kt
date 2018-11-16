@@ -1,9 +1,8 @@
 package pl.balazinski.jakub.simplecalc
 
+import org.junit.Assert.assertEquals
 import org.junit.Test
-
-import org.junit.Assert.*
-import pl.balazinski.jakub.simplecalc.main.Presenter
+import pl.balazinski.jakub.simplecalc.main.MainPresenter
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -20,7 +19,7 @@ class ExampleUnitTest {
 
     @Test
     fun isValuationCorrect(){
-        val presenter = Presenter()
+        val presenter = MainPresenter()
         val expression = presenter.shuntingYard("5*10-(80/2)+((4+3)-(5-2))")
         assertEquals(presenter.evaluateValue(expression), "14")
 

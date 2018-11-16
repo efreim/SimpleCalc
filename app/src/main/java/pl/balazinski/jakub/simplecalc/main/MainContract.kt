@@ -1,25 +1,34 @@
 package pl.balazinski.jakub.simplecalc.main
 
 interface MainContract {
-    interface View {
+    interface View<T> {
+        var presenter: T
+
         fun loadView()
-        fun updateCalculationView()
-        fun updateResultView()
+        fun updateCalculationView(number: String)
+        fun updateResultView(result: String)
         fun clearViews()
-        fun updateOpenBracketsView()
-        fun updateCloseBracketsView()
+        fun updateBracketsView(open: Int, closed: Int)
+        fun showError()
+        fun removeLastFromView()
     }
 
     interface Presenter {
-        fun numberClick()
-        fun dotClick()
-        fun multiplyClick()
-        fun divideClick()
-        fun addClick()
-        fun subtractClick()
+        fun numberClick(currentText: String, number: String)
+        fun dotClick(currentText: String)
+        fun multiplyClick(currentText: String)
+        fun divideClick(currentText: String)
+        fun addClick(currentText: String)
+        fun subtractClick(currentText: String)
         fun clearClick()
-        fun removeLastCharacterClick()
+        fun removeLastCharacterClick(currentText: String)
         fun openBracketsClick()
         fun closeBracketsClick()
+        fun evaluateExpression(expression: String)
+        fun stopCalculation()
+        fun getOpenBracketsCount(): Int
+        fun getClosedBracketsCount(): Int
+        fun setOpenBracketsCount(count: Int)
+        fun setClosedBracketsCount(count: Int)
     }
 }
