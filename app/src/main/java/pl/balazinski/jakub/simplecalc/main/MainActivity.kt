@@ -6,6 +6,8 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import pl.balazinski.jakub.simplecalc.R
 
@@ -16,19 +18,15 @@ class MainActivity : Activity(), MainContract.View<MainContract.Presenter> {
         private const val CLOSED_BRACKETS_KEY = "CLOSED_BRACKETS_KEY"
     }
 
-    //    lateinit var job: Job
-//    override val coroutineContext: CoroutineContext
-//        get() = Dispatchers.Main + job
     override lateinit var presenter: MainContract.Presenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        job = Job()
         setContentView(R.layout.activity_main)
         MainPresenter(this)
     }
 
-    fun getCalculationText(): String {
+    private fun getCalculationText(): String {
         return expression_edit_text.text.toString()
     }
 
@@ -72,8 +70,9 @@ class MainActivity : Activity(), MainContract.View<MainContract.Presenter> {
         expression_edit_text.append(number)
     }
 
-    override fun updateResultView(result: String) {
-        result_text_view.text = "=$result"
+    override fun updateResultView(value: String) {
+        result_text_view.text = "="
+        result_text_view.append(value)
     }
 
     override fun clearViews() {
@@ -100,13 +99,27 @@ class MainActivity : Activity(), MainContract.View<MainContract.Presenter> {
         }
     }
 
-    override fun showError() {
-//        expression_edit_text.setCompoundDrawables(
-//            ContextCompat.getDrawable(this, R.drawable.ic_error_outline),
-//            null,
-//            null,
-//            null
-//        )
+    override fun showError(message: Int) {
+        result_text_view.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark))
+
+        expression_edit_text.setCompoundDrawables(
+            ContextCompat.getDrawable(this, R.drawable.ic_error_outline),
+            null,
+            null,
+            null
+        )
+
+        expression_edit_text.setOnClickListener { Toast.makeText(this, getString(message), Toast.LENGTH_SHORT).show() }
+    }
+
+    override fun hideError() {
+        result_text_view.setTextColor(ContextCompat.getColor(this, android.R.color.black))
+        expression_edit_text.setCompoundDrawables(
+            null,
+            null,
+            null,
+            null
+        )
     }
 
     class MyTextWatcher(private val activity: MainActivity, private val editText: EditText) : TextWatcher {
@@ -126,7 +139,6 @@ class MainActivity : Activity(), MainContract.View<MainContract.Presenter> {
     override fun onDestroy() {
         super.onDestroy()
         presenter.stopCalculation()
-//        job.cancel()
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
@@ -154,7 +166,6 @@ class MainActivity : Activity(), MainContract.View<MainContract.Presenter> {
     }
 
     private fun evaluateExpression(expression: String) {
-//        job = launch(Dispatchers.IO){ presenter.evaluateExpression(expression) }
         presenter.evaluateExpression(expression)
     }
 

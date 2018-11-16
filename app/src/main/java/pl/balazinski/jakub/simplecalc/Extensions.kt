@@ -1,22 +1,28 @@
 package pl.balazinski.jakub.simplecalc
 
-import android.text.InputType
-import android.widget.EditText
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.util.regex.Pattern
 
-fun String.isNumber(): Boolean{
+fun String.isNumber(): Boolean {
     val m = Pattern.compile("-?\\d+(\\.\\d+)?|-?\\.\\d+").matcher(this)
     return m.matches()
 }
 
-fun EditText.disableShowingKeyboard() {
-    setRawInputType(InputType.TYPE_CLASS_TEXT)
-    setTextIsSelectable(true)
+fun String.provideNegativeNumbers(): String {
+    val newExpression = this.replace("(-", "(0-")
+    if (newExpression.startsWith("-"))
+        return "0$newExpression"
+    return newExpression
 }
 
-suspend fun CoroutineScope.launchInIO() = launch(Dispatchers.IO) {
-    // Launched in the scope of the caller, but with IO dispatcher
+fun String.trimZerosAndComa(): String {
+    var newValue = this
+    if (newValue.contains(".")) {
+        while (newValue.endsWith("0")) {
+            newValue = newValue.substring(0, newValue.length - 1)
+        }
+        if (newValue.endsWith("."))
+            newValue = newValue.substring(0, newValue.length - 1)
+
+    }
+    return newValue
 }

@@ -1,41 +1,45 @@
 package pl.balazinski.jakub.simplecalc.main
 
-import android.util.Log
 import kotlinx.coroutines.*
-import pl.balazinski.jakub.simplecalc.Algorithm
+import pl.balazinski.jakub.simplecalc.calculations.Algorithm
+import pl.balazinski.jakub.simplecalc.calculations.EvaluationResult
+import pl.balazinski.jakub.simplecalc.calculations.Result
 import kotlin.coroutines.CoroutineContext
 
 class MainPresenter(private val view: MainContract.View<MainContract.Presenter>) : MainContract.Presenter,
     CoroutineScope {
 
-    var job: Job
+    private val job = Job()
+
+    lateinit var deferred: Deferred<String>
 
     init {
-        job = Job()
         view.presenter = this
         view.loadView()
     }
 
-
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO + job
+        get() = Dispatchers.Main + job
+
 
     private val algorithm = Algorithm()
     private var numberOfOpenBrackets = 0
     private var numberOfClosedBrackets = 0
 
     override fun evaluateExpression(expression: String) {
-        job = launch(coroutineContext) {
-            Log.d("dupa", "launch")
-            val result = async {
-                Log.d("dupa", "async")
-                algorithm.shuntingYard(expression)
-            }.await()
+        if (expression.isNotEmpty()) {
+            launch(coroutineContext) {
+                val evaluationResult: EvaluationResult = async(Dispatchers.IO) {
+                    algorithm.shuntingYard(expression)
+                }.await()
 
-            Log.d("dupa", "updateResultView")
-            view.updateResultView(result)
+                if (evaluationResult.result == Result.VALID) {
+                    view.updateResultView(evaluationResult.value!!)
+                    view.hideError()
+                } else
+                    view.showError(evaluationResult.message!!)
+            }
         }
-
     }
 
 
@@ -45,37 +49,46 @@ class MainPresenter(private val view: MainContract.View<MainContract.Presenter>)
 
     override fun dotClick(currentText: String) {
         if (currentText.isNotEmpty()) {
-            if (currentText[currentText.lastIndex].isDigit())
+            if (currentText[currentText.lastIndex].isDigit()) {
+                for (i in currentText.length - 1 downTo 0) {
+                    if (!currentText[i].isDigit() and (currentText[i] != '.')) {
+                        break
+                    }
+                    if (currentText[i] == '.')
+                        return
+                }
                 view.updateCalculationView(".")
+            }
         }
     }
 
     override fun multiplyClick(currentText: String) {
         if (currentText.isNotEmpty()) {
-            if (currentText[currentText.lastIndex].isDigit())
+            if (currentText[currentText.lastIndex].isDigit() or currentText.endsWith(")"))
                 view.updateCalculationView("*")
         }
     }
 
     override fun divideClick(currentText: String) {
         if (currentText.isNotEmpty()) {
-            if (currentText[currentText.lastIndex].isDigit())
+            if (currentText[currentText.lastIndex].isDigit() or currentText.endsWith(")"))
                 view.updateCalculationView("/")
         }
     }
 
     override fun addClick(currentText: String) {
         if (currentText.isNotEmpty()) {
-            if (currentText[currentText.lastIndex].isDigit())
+            if (currentText[currentText.lastIndex].isDigit() or currentText.endsWith(")"))
                 view.updateCalculationView("+")
         }
     }
 
     override fun subtractClick(currentText: String) {
         if (currentText.isNotEmpty()) {
-            if (currentText[currentText.lastIndex].isDigit())
+            if (currentText[currentText.lastIndex].isDigit() or currentText.endsWith(")") or currentText.endsWith("("))
                 view.updateCalculationView("-")
-        }
+        } else
+            view.updateCalculationView("-")
     }
 
     override fun clearClick() {
@@ -128,6 +141,5 @@ class MainPresenter(private val view: MainContract.View<MainContract.Presenter>)
     override fun stopCalculation() {
         job.cancel()
     }
-
 
 }

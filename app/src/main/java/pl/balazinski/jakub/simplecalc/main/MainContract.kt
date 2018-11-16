@@ -6,10 +6,11 @@ interface MainContract {
 
         fun loadView()
         fun updateCalculationView(number: String)
-        fun updateResultView(result: String)
+        fun updateResultView(value: String)
         fun clearViews()
         fun updateBracketsView(open: Int, closed: Int)
-        fun showError()
+        fun showError(message: Int)
+        fun hideError()
         fun removeLastFromView()
     }
 

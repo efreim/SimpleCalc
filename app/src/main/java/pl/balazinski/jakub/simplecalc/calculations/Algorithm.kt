@@ -1,16 +1,23 @@
-package pl.balazinski.jakub.simplecalc
+package pl.balazinski.jakub.simplecalc.calculations
 
+import pl.balazinski.jakub.simplecalc.R
+import pl.balazinski.jakub.simplecalc.isNumber
+import pl.balazinski.jakub.simplecalc.provideNegativeNumbers
+import pl.balazinski.jakub.simplecalc.trimZerosAndComa
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.util.*
 import java.util.regex.Pattern
 
 class Algorithm {
 
     //Implementation of Shunting-yard_algorithm https://en.wikipedia.org/wiki/Shunting-yard_algorithm (conversion to rpn)
-    suspend fun shuntingYard(expression: String): String {
+    fun shuntingYard(expression: String): EvaluationResult {
+        val expressionWithNegatives = expression.provideNegativeNumbers()
+
         val allTokens = ArrayList<String>()
-        val m = Pattern.compile("[-+/*()]|-?\\d+(\\.\\d+)?|-?\\.\\d+")
-            .matcher(expression)
+        val m = Pattern.compile("[-+/*()]|-?\\d+(\\.\\d+)?|ó-?\\.\\d+")
+            .matcher(expressionWithNegatives)
 
         while (m.find()) {
             allTokens.add(m.group())
@@ -62,32 +69,50 @@ class Algorithm {
     }
 
     //evaluation of postfix expression
-    private suspend fun evaluateValue(outputStack: List<String>): String {
+    private fun evaluateValue(outputStack: List<String>): EvaluationResult {
 
         val resultStack = Stack<String>()
         for (item in outputStack) {
             if (item.isNumber())
                 resultStack.push(item)
             else {
-                val first = BigDecimal(resultStack.pop())
-                val second = BigDecimal(resultStack.pop())
-                when (item) {
-                    "-" -> {
-                        resultStack.push(second.subtract(first).toString())
+                if (resultStack.size >= 2) {
+                    val first = BigDecimal(resultStack.pop())
+                    val second = BigDecimal(resultStack.pop())
+                    when (item) {
+                        "-" -> {
+                            resultStack.push(second.subtract(first).toString())
+                        }
+                        "+" -> {
+                            resultStack.push(second.add(first).toString())
+                        }
+                        "/" -> {
+                            if (first == BigDecimal(0))
+                                return EvaluationResult(
+                                    Result.ERROR,
+                                    R.string.dividing_by_zero,
+                                    null
+                                )
+                            resultStack.push(second.divide(first, 5, RoundingMode.HALF_EVEN).toString())
+                        }
+                        "*" -> {
+                            resultStack.push(second.multiply(first).toString())
+                        }
                     }
-                    "+" -> {
-                        resultStack.push(second.add(first).toString())
-                    }
-                    "/" -> {
-                        resultStack.push(second.divide(first).toString())
-                    }
-                    "*" -> {
-                        resultStack.push(second.multiply(first).toString())
-                    }
-                }
+                } else
+                    return EvaluationResult(
+                        Result.ERROR,
+                        R.string.expression_not_complete,
+                        null
+                    )
             }
         }
 
-        return resultStack[0]
+        return EvaluationResult(
+            Result.VALID,
+            null,
+            resultStack[0].trimZerosAndComa()
+        )
     }
+
 }

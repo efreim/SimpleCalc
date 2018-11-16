@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SimpleCalc</string>
+    <string name="dividing_by_zero">Dividing by zero!</string>
+    <string name="expression_not_complete">Expression is not complete</string>
 </resources>
