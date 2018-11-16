@@ -34,10 +34,12 @@ class MainPresenter(private val view: MainContract.View<MainContract.Presenter>)
                 }.await()
 
                 if (evaluationResult.result == Result.VALID) {
-                    view.updateResultView(evaluationResult.value!!)
+                    view.updateResultView("=" + evaluationResult.value!!)
                     view.hideError()
-                } else
+                } else {
+                    view.updateResultView("")
                     view.showError(evaluationResult.message!!)
+                }
             }
         }
     }

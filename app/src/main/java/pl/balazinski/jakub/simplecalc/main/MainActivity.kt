@@ -71,13 +71,13 @@ class MainActivity : Activity(), MainContract.View<MainContract.Presenter> {
     }
 
     override fun updateResultView(value: String) {
-        result_text_view.text = "="
-        result_text_view.append(value)
+        result_text_view.text = value
     }
 
     override fun clearViews() {
         result_text_view.text = ""
         expression_edit_text.text.clear()
+        error_image.visibility = View.GONE
     }
 
     override fun updateBracketsView(open: Int, closed: Int) {
@@ -101,25 +101,13 @@ class MainActivity : Activity(), MainContract.View<MainContract.Presenter> {
 
     override fun showError(message: Int) {
         result_text_view.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark))
-
-        expression_edit_text.setCompoundDrawables(
-            ContextCompat.getDrawable(this, R.drawable.ic_error_outline),
-            null,
-            null,
-            null
-        )
-
-        expression_edit_text.setOnClickListener { Toast.makeText(this, getString(message), Toast.LENGTH_SHORT).show() }
+        error_image.visibility = View.VISIBLE
+        error_image.setOnClickListener { Toast.makeText(this, getString(message), Toast.LENGTH_SHORT).show() }
     }
 
     override fun hideError() {
         result_text_view.setTextColor(ContextCompat.getColor(this, android.R.color.black))
-        expression_edit_text.setCompoundDrawables(
-            null,
-            null,
-            null,
-            null
-        )
+        error_image.visibility = View.GONE
     }
 
     class MyTextWatcher(private val activity: MainActivity, private val editText: EditText) : TextWatcher {
