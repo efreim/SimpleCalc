@@ -11,7 +11,7 @@ import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
 import pl.balazinski.jakub.simplecalc.R
 
-class MainActivity : Activity(), MainContract.View<MainContract.Presenter> {
+class MainActivity : Activity(), MainContract.View {
     companion object {
         private const val EXPRESSION_KEY = "EXPRESSION_KEY"
         private const val OPEN_BRACKETS_KEY = "OPEN_BRACKETS_KEY"
@@ -40,7 +40,7 @@ class MainActivity : Activity(), MainContract.View<MainContract.Presenter> {
     }
 
     override fun loadView() {
-        expression_edit_text.addTextChangedListener(MyTextWatcher(this, expression_edit_text))
+        expression_edit_text.addTextChangedListener(MyTextWatcher(presenter, expression_edit_text))
         expression_edit_text.showSoftInputOnFocus = false
 
         button_zero.setOnClickListener { presenter.numberClick("0") }
@@ -63,7 +63,6 @@ class MainActivity : Activity(), MainContract.View<MainContract.Presenter> {
         button_close_bracket.setOnClickListener { presenter.closeBracketsClick() }
         button_remove_last_char.setOnClickListener { presenter.removeLastCharacterClick(getCalculationText()) }
         button_clear.setOnClickListener { presenter.clearClick() }
-        button_equals.setOnClickListener { evaluateExpression(expression_edit_text.text.toString()) }
     }
 
     override fun updateCalculationView(number: String) {
@@ -110,11 +109,11 @@ class MainActivity : Activity(), MainContract.View<MainContract.Presenter> {
         error_image.visibility = View.GONE
     }
 
-    class MyTextWatcher(private val activity: MainActivity, private val editText: EditText) : TextWatcher {
+    class MyTextWatcher(private val presenter: MainContract.Presenter, private val editText: EditText) : TextWatcher {
         override fun afterTextChanged(p0: Editable?) {
             editText.setSelection(editText.text.length)
             if (p0 != null)
-                activity.evaluateExpression(p0.toString())
+                presenter.evaluateExpression(p0.toString())
         }
 
         override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -130,11 +129,11 @@ class MainActivity : Activity(), MainContract.View<MainContract.Presenter> {
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
-        if (outState != null) {
+        outState?.run {
             if (expression_edit_text.text.isNotEmpty())
-                outState.putString(EXPRESSION_KEY, expression_edit_text.text.toString())
-            outState.putInt(OPEN_BRACKETS_KEY, presenter.getOpenBracketsCount())
-            outState.putInt(CLOSED_BRACKETS_KEY, presenter.getClosedBracketsCount())
+                putString(EXPRESSION_KEY, expression_edit_text.text.toString())
+            putInt(OPEN_BRACKETS_KEY, presenter.getOpenBracketsCount())
+            putInt(CLOSED_BRACKETS_KEY, presenter.getClosedBracketsCount())
         }
 
         super.onSaveInstanceState(outState)
@@ -151,10 +150,6 @@ class MainActivity : Activity(), MainContract.View<MainContract.Presenter> {
             presenter.setClosedBracketsCount(closed)
             updateBracketsView(open, closed)
         }
-    }
-
-    private fun evaluateExpression(expression: String) {
-        presenter.evaluateExpression(expression)
     }
 
 }

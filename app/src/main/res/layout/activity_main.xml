@@ -100,6 +100,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="0.15"
                     android:layout_height="match_parent"
+                    android:contentDescription="@string/remove_last_character"
                     android:src="@drawable/ic_backspace"
                     android:id="@+id/button_remove_last_char"/>
 
@@ -196,7 +197,7 @@
                       android:orientation="horizontal">
             <Button
                     android:layout_width="0dp"
-                    android:layout_weight="0.2"
+                    android:layout_weight="0.4"
                     android:layout_height="match_parent"
                     android:text="@string/_0"
                     android:id="@+id/button_zero"/>
@@ -208,12 +209,6 @@
                     android:text="@string/dot"
                     android:id="@+id/button_dot"/>
 
-            <Button
-                    android:layout_width="0dp"
-                    android:layout_weight="0.2"
-                    android:layout_height="match_parent"
-                    android:text="@string/equals"
-                    android:id="@+id/button_equals"/>
 
             <View android:layout_width="0dp"
                   android:layout_weight="0.1"

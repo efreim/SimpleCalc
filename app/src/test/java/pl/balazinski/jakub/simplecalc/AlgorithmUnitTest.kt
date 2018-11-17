@@ -9,7 +9,6 @@ import pl.balazinski.jakub.simplecalc.calculations.Result
 class AlgorithmUnitTest {
 
     private val algorithm = Algorithm()
-    private val notCompleted = EvaluationResult(Result.ERROR, R.string.expression_not_complete, null)
     private val invalid = EvaluationResult(Result.ERROR, R.string.expression_invalid, null)
     private val dividingByZero = EvaluationResult(Result.ERROR, R.string.dividing_by_zero, null)
 
@@ -57,12 +56,12 @@ class AlgorithmUnitTest {
 
     @Test
     fun testError1() {
-        assertEquals(algorithm.shuntingYard("123+"), notCompleted)
+        assertEquals(algorithm.shuntingYard("123+"), invalid)
     }
 
     @Test
     fun testError2() {
-        assertEquals(algorithm.shuntingYard("123+((()()()()((((((((("), notCompleted)
+        assertEquals(algorithm.shuntingYard("123+((()()()()((((((((("), invalid)
     }
 
     @Test

@@ -8,11 +8,43 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
 import java.util.regex.Pattern
+import kotlin.collections.ArrayList
 
 class Algorithm {
 
+    private val invalid = EvaluationResult(Result.ERROR, R.string.expression_invalid, null)
+    private val dividingByZero = EvaluationResult(Result.ERROR, R.string.dividing_by_zero, null)
+
     //Implementation of Shunting-yard_algorithm https://en.wikipedia.org/wiki/Shunting-yard_algorithm (conversion to rpn)
     fun shuntingYard(expression: String): EvaluationResult {
+        val modifiedExpression = expression.provideNegativeNumbers()
+        val tokens = splitExpressionToTokens(modifiedExpression)
+
+        val operatorStack = Stack<String>()
+        val output = ArrayList<String>()
+
+        for (token in tokens) {
+            when {
+                token.isNumber() -> output.add(token)
+                token == "(" -> operatorStack.push(token)
+                token == ")" -> {
+                    val result: EvaluationResult? = onTokenClosedBracket(operatorStack, output)
+                    if (result != null)
+                        return result
+                }
+                else -> {
+                    onTokenOperator(operatorStack, output, token)
+                }
+            }
+        }
+
+        while (operatorStack.isNotEmpty())
+            output.add(operatorStack.pop())
+
+        return evaluateValue(output)
+    }
+
+    private fun splitExpressionToTokens(expression: String): ArrayList<String> {
         val expressionWithNegatives = expression.provideNegativeNumbers()
 
         val allTokens = ArrayList<String>()
@@ -23,61 +55,42 @@ class Algorithm {
             allTokens.add(m.group())
         }
 
-        val operationsMap = HashMap<String, Int>()
-        operationsMap["-"] = 1
-        operationsMap["+"] = 1
-        operationsMap["*"] = 2
-        operationsMap["/"] = 2
+        return allTokens
+    }
 
-        val operatorStack = Stack<String>()
-        val outputStack = Stack<String>()
 
-        for (token in allTokens) {
-            if (token.isNumber()) {
-                outputStack.push(token)
-            } else if (operationsMap.containsKey(token)) {
-
-                while (operatorStack.size > 0) {
-                    val prev = operatorStack.peek()
-                    var i: Int? = operationsMap[prev]
-                    if (i == null)
-                        i = -2
-
-                    if (operationsMap.containsKey(token)) {
-                        if (prev == "(")
-                            break
-                        else if (operationsMap[token]!! <= i)
-                            outputStack.push(operatorStack.pop())
-                        else break
-                    }
-                }
-                operatorStack.push(token)
-
-            } else if (token == "(") {
-                operatorStack.push("(")
-            } else if (token == ")") {
-                if (operatorStack.isEmpty())
-                    return EvaluationResult(Result.ERROR, R.string.expression_invalid, null)
-                while (operatorStack.peek() != "(") {
-                    outputStack.push(operatorStack.pop())
-                    if (operatorStack.isEmpty())
-                        return EvaluationResult(Result.ERROR, R.string.expression_invalid, null)
-                }
-                operatorStack.pop()
-
-            }
+    private fun onTokenClosedBracket(operatorStack: Stack<String>, output: ArrayList<String>): EvaluationResult? {
+        if (operatorStack.isEmpty())
+            return invalid
+        while (operatorStack.peek() != "(") {
+            output.add(operatorStack.pop())
+            if (operatorStack.isEmpty())
+                return invalid
         }
-        while (!operatorStack.isEmpty())
-            outputStack.push(operatorStack.pop())
+        if (operatorStack.isNotEmpty())
+            operatorStack.pop()
+        return null
+    }
 
-        return evaluateValue(outputStack.toList())
+    private fun onTokenOperator(operatorStack: Stack<String>, output: ArrayList<String>, token: String) {
+        while (operatorStack.isNotEmpty() && (getPriority(operatorStack.peek()) >= getPriority(token)))
+            output.add(operatorStack.pop())
+        operatorStack.push(token)
+    }
+
+    private fun getPriority(operation: String): Int {
+        return when {
+            operation == "(" -> 0
+            (operation == "+") or (operation == "-") -> 1
+            else -> 2
+        }
     }
 
     //evaluation of postfix expression
-    private fun evaluateValue(outputStack: List<String>): EvaluationResult {
+    private fun evaluateValue(output: List<String>): EvaluationResult {
 
         val resultStack = Stack<String>()
-        for (item in outputStack) {
+        for (item in output) {
             if (item.isNumber())
                 resultStack.push(item)
             else {
@@ -93,11 +106,7 @@ class Algorithm {
                         }
                         "/" -> {
                             if (first == BigDecimal(0))
-                                return EvaluationResult(
-                                    Result.ERROR,
-                                    R.string.dividing_by_zero,
-                                    null
-                                )
+                                return dividingByZero
                             resultStack.push(second.divide(first, 5, RoundingMode.HALF_EVEN).toString())
                         }
                         "*" -> {
@@ -105,16 +114,12 @@ class Algorithm {
                         }
                     }
                 } else
-                    return EvaluationResult(
-                        Result.ERROR,
-                        R.string.expression_not_complete,
-                        null
-                    )
+                    return invalid
             }
         }
 
         return if (resultStack.empty())
-            EvaluationResult(Result.ERROR, R.string.expression_not_complete, null)
+            invalid
         else
             EvaluationResult(Result.VALID, null, resultStack[0].trimZerosAndComa())
     }

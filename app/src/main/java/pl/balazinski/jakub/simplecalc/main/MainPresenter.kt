@@ -6,7 +6,7 @@ import pl.balazinski.jakub.simplecalc.calculations.EvaluationResult
 import pl.balazinski.jakub.simplecalc.calculations.Result
 import kotlin.coroutines.CoroutineContext
 
-class MainPresenter(private val view: MainContract.View<MainContract.Presenter>) : MainContract.Presenter,
+class MainPresenter(private val view: MainContract.View) : MainContract.Presenter,
     CoroutineScope {
 
     private val job = Job()

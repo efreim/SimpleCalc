@@ -18,7 +18,7 @@ class MainPresenterUnitTest {
 
     private lateinit var presenter: MainContract.Presenter
     @Mock
-    lateinit var view: MainContract.View<MainContract.Presenter>
+    lateinit var view: MainContract.View
 
     private val add = "+"
     private val divide = "/"
@@ -307,9 +307,11 @@ class MainPresenterUnitTest {
     @Test
     fun removeLastCharacterClickTest4() {
         val currentText = "(1+2)"
-        presenter.setOpenBracketsCount(1)
-        presenter.setClosedBracketsCount(1)
-        presenter.removeLastCharacterClick(currentText)
+        presenter.run {
+            setOpenBracketsCount(1)
+            setClosedBracketsCount(1)
+            removeLastCharacterClick(currentText)
+        }
         verify(view).updateBracketsView(1, 0)
         verify(view).removeLastFromView()
     }
@@ -317,9 +319,11 @@ class MainPresenterUnitTest {
     @Test
     fun removeLastCharacterClickTest5() {
         val currentText = "(1+2)("
-        presenter.setOpenBracketsCount(2)
-        presenter.setClosedBracketsCount(1)
-        presenter.removeLastCharacterClick(currentText)
+        presenter.run {
+            setOpenBracketsCount(2)
+            setClosedBracketsCount(1)
+            removeLastCharacterClick(currentText)
+        }
         verify(view).updateBracketsView(1, 1)
         verify(view).removeLastFromView()
     }

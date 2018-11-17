@@ -1,8 +1,8 @@
 package pl.balazinski.jakub.simplecalc.main
 
 interface MainContract {
-    interface View<T> {
-        var presenter: T
+    interface View {
+        var presenter: Presenter
 
         fun loadView()
         fun updateCalculationView(number: String)
