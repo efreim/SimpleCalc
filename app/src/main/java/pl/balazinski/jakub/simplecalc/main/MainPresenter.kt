@@ -11,8 +11,6 @@ class MainPresenter(private val view: MainContract.View<MainContract.Presenter>)
 
     private val job = Job()
 
-    lateinit var deferred: Deferred<String>
-
     init {
         view.presenter = this
         view.loadView()
@@ -45,7 +43,7 @@ class MainPresenter(private val view: MainContract.View<MainContract.Presenter>)
     }
 
 
-    override fun numberClick(currentText: String, number: String) {
+    override fun numberClick(number: String) {
         view.updateCalculationView(number)
     }
 
@@ -65,24 +63,18 @@ class MainPresenter(private val view: MainContract.View<MainContract.Presenter>)
     }
 
     override fun multiplyClick(currentText: String) {
-        if (currentText.isNotEmpty()) {
-            if (currentText[currentText.lastIndex].isDigit() or currentText.endsWith(")"))
-                view.updateCalculationView("*")
-        }
+        if (checkOperationConditions(currentText))
+            view.updateCalculationView("*")
     }
 
     override fun divideClick(currentText: String) {
-        if (currentText.isNotEmpty()) {
-            if (currentText[currentText.lastIndex].isDigit() or currentText.endsWith(")"))
-                view.updateCalculationView("/")
-        }
+        if (checkOperationConditions(currentText))
+            view.updateCalculationView("/")
     }
 
     override fun addClick(currentText: String) {
-        if (currentText.isNotEmpty()) {
-            if (currentText[currentText.lastIndex].isDigit() or currentText.endsWith(")"))
-                view.updateCalculationView("+")
-        }
+        if (checkOperationConditions(currentText))
+            view.updateCalculationView("+")
     }
 
     override fun subtractClick(currentText: String) {
@@ -144,4 +136,11 @@ class MainPresenter(private val view: MainContract.View<MainContract.Presenter>)
         job.cancel()
     }
 
+    private fun checkOperationConditions(currentText: String): Boolean {
+        if (currentText.isNotEmpty()) {
+            if (currentText[currentText.lastIndex].isDigit() or currentText.endsWith(")"))
+                return true
+        }
+        return false
+    }
 }

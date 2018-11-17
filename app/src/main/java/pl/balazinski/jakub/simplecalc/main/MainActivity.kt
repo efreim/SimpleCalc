@@ -43,16 +43,16 @@ class MainActivity : Activity(), MainContract.View<MainContract.Presenter> {
         expression_edit_text.addTextChangedListener(MyTextWatcher(this, expression_edit_text))
         expression_edit_text.showSoftInputOnFocus = false
 
-        button_zero.setOnClickListener { presenter.numberClick(getCalculationText(), "0") }
-        button_one.setOnClickListener { presenter.numberClick(getCalculationText(), "1") }
-        button_two.setOnClickListener { presenter.numberClick(getCalculationText(), "2") }
-        button_three.setOnClickListener { presenter.numberClick(getCalculationText(), "3") }
-        button_four.setOnClickListener { presenter.numberClick(getCalculationText(), "4") }
-        button_five.setOnClickListener { presenter.numberClick(getCalculationText(), "5") }
-        button_six.setOnClickListener { presenter.numberClick(getCalculationText(), "6") }
-        button_seven.setOnClickListener { presenter.numberClick(getCalculationText(), "7") }
-        button_eight.setOnClickListener { presenter.numberClick(getCalculationText(), "8") }
-        button_nine.setOnClickListener { presenter.numberClick(getCalculationText(), "9") }
+        button_zero.setOnClickListener { presenter.numberClick("0") }
+        button_one.setOnClickListener { presenter.numberClick("1") }
+        button_two.setOnClickListener { presenter.numberClick("2") }
+        button_three.setOnClickListener { presenter.numberClick("3") }
+        button_four.setOnClickListener { presenter.numberClick("4") }
+        button_five.setOnClickListener { presenter.numberClick("5") }
+        button_six.setOnClickListener { presenter.numberClick("6") }
+        button_seven.setOnClickListener { presenter.numberClick("7") }
+        button_eight.setOnClickListener { presenter.numberClick("8") }
+        button_nine.setOnClickListener { presenter.numberClick("9") }
         button_dot.setOnClickListener { presenter.dotClick(getCalculationText()) }
 
         button_add.setOnClickListener { presenter.addClick(getCalculationText()) }

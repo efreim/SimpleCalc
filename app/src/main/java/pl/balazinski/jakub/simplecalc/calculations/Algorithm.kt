@@ -56,11 +56,12 @@ class Algorithm {
             } else if (token == "(") {
                 operatorStack.push("(")
             } else if (token == ")") {
-                //todo tutaj wywala błąd
                 if (operatorStack.isEmpty())
                     return EvaluationResult(Result.ERROR, R.string.expression_invalid, null)
                 while (operatorStack.peek() != "(") {
                     outputStack.push(operatorStack.pop())
+                    if (operatorStack.isEmpty())
+                        return EvaluationResult(Result.ERROR, R.string.expression_invalid, null)
                 }
                 operatorStack.pop()
 
@@ -113,7 +114,7 @@ class Algorithm {
         }
 
         return if (resultStack.empty())
-            EvaluationResult(Result.ERROR, R.string.incomplete_expression, null)
+            EvaluationResult(Result.ERROR, R.string.expression_not_complete, null)
         else
             EvaluationResult(Result.VALID, null, resultStack[0].trimZerosAndComa())
     }

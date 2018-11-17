@@ -23,5 +23,4 @@
     <string name="open_bracket">(</string>
     <string name="close_bracket">)</string>
     <string name="expression_invalid">Invalid expression</string>
-    <string name="incomplete_expression">Incomplete expression</string>
 </resources>

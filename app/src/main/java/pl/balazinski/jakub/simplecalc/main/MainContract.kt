@@ -15,7 +15,7 @@ interface MainContract {
     }
 
     interface Presenter {
-        fun numberClick(currentText: String, number: String)
+        fun numberClick(number: String)
         fun dotClick(currentText: String)
         fun multiplyClick(currentText: String)
         fun divideClick(currentText: String)
