@@ -12,8 +12,8 @@ import kotlin.collections.ArrayList
 
 class Algorithm {
 
-    private val invalid = EvaluationResult(Result.ERROR, R.string.expression_invalid, null)
-    private val dividingByZero = EvaluationResult(Result.ERROR, R.string.dividing_by_zero, null)
+    private val invalidResult = EvaluationResult(Result.ERROR, R.string.expression_invalid, null)
+    private val dividingByZeroResult = EvaluationResult(Result.ERROR, R.string.dividing_by_zero, null)
 
     //Implementation of Shunting-yard_algorithm https://en.wikipedia.org/wiki/Shunting-yard_algorithm (conversion to rpn)
     fun shuntingYard(expression: String): EvaluationResult {
@@ -61,11 +61,11 @@ class Algorithm {
 
     private fun onTokenClosedBracket(operatorStack: Stack<String>, output: ArrayList<String>): EvaluationResult? {
         if (operatorStack.isEmpty())
-            return invalid
+            return invalidResult
         while (operatorStack.peek() != "(") {
             output.add(operatorStack.pop())
             if (operatorStack.isEmpty())
-                return invalid
+                return invalidResult
         }
         if (operatorStack.isNotEmpty())
             operatorStack.pop()
@@ -106,7 +106,7 @@ class Algorithm {
                         }
                         "/" -> {
                             if (first == BigDecimal(0))
-                                return dividingByZero
+                                return dividingByZeroResult
                             resultStack.push(second.divide(first, 5, RoundingMode.HALF_EVEN).toString())
                         }
                         "*" -> {
@@ -114,12 +114,12 @@ class Algorithm {
                         }
                     }
                 } else
-                    return invalid
+                    return invalidResult
             }
         }
 
         return if (resultStack.empty())
-            invalid
+            invalidResult
         else
             EvaluationResult(Result.VALID, null, resultStack[0].trimZerosAndComa())
     }
